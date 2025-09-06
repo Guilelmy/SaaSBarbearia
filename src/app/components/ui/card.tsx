@@ -1,5 +1,6 @@
 import * as React from "react"
 
+// Update the path below if your utils file is located elsewhere
 import { cn } from "../../lib/utils"
 
 const Card = React.forwardRef<
