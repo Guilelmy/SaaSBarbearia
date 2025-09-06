@@ -3,7 +3,6 @@ import Header from "./components/header"
 import { Button } from "./components/ui/button"
 import { Input } from "./components/ui/input"
 import Image from "next/image"
-import { Card, CardContent } from "./components/ui/card"
 import { db } from "./lib/prisma"
 import BarbershopItem from "./components/barbershop-item"
 import { quickSearchOptions } from "./constants/search"
@@ -70,13 +69,6 @@ const Home = async () => {
           ))}
         </div>
       </div>
-      <footer>
-        <Card>
-          <CardContent className="px-5 py-6">
-            <p className="text-xs text-gray-400"> © 2025 - Guilhermy </p>
-          </CardContent>
-        </Card>
-      </footer>
     </div>
   )
 }
