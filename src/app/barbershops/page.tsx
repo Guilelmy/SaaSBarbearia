@@ -1,30 +1,59 @@
 import BarbershopItem from "../components/barbershop-item"
 import { db } from "../lib/prisma"
+import Header from "../components/header"
+import Search from "../components/search"
 
 interface BarbershopsPageProps {
   searchParams: {
-    search?: string
+    title?: string
+    service?: string
   }
 }
 
 const BarbershopsPage = async ({ searchParams }: BarbershopsPageProps) => {
   const barbershops = await db.barbershop.findMany({
     where: {
-      name: {
-        contains: searchParams.search,
-        mode: "insensitive",
-      },
+      OR: [
+        searchParams.title
+          ? {
+              name: {
+                contains: searchParams.title,
+                mode: "insensitive",
+              },
+            }
+          : {},
+
+        searchParams.service
+          ? {
+              services: {
+                some: {
+                  name: {
+                    contains: searchParams.service,
+                    mode: "insensitive",
+                  },
+                },
+              },
+            }
+          : {},
+      ],
     },
   })
+
   return (
     <div>
-      <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
-        Resultados para {searchParams.search}
-      </h2>
-      <div className="grid grid-cols-2 gap-4">
-        {barbershops.map((barbershop) => (
-          <BarbershopItem key={barbershop.id} barbershop={barbershop} />
-        ))}
+      <Header />
+      <div className="my-6 px-5">
+        <Search />
+      </div>
+      <div className="px-5">
+        <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
+          Resultados para {searchParams.title || searchParams.service}
+        </h2>
+        <div className="grid grid-cols-2 gap-4">
+          {barbershops.map((barbershop) => (
+            <BarbershopItem key={barbershop.id} barbershop={barbershop} />
+          ))}
+        </div>
       </div>
     </div>
   )

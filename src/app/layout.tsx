@@ -32,18 +32,19 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          {children}
+          <div className="flex h-full flex-col">
+            <div className="flex-1">{children}</div>
 
-          <Toaster />
-
-          <footer>
-            <Card>
-              <CardContent className="px-5 py-6">
-                <p className="text-xs text-gray-400"> © 2025 - Guilhermy </p>
-              </CardContent>
-            </Card>
-          </footer>
+            <footer>
+              <Card>
+                <CardContent className="px-5 py-6">
+                  <p className="text-xs text-gray-400"> © 2025 - Guilhermy </p>
+                </CardContent>
+              </Card>
+            </footer>
+          </div>
         </AuthProvider>
+        <Toaster />
       </body>
     </html>
   )
