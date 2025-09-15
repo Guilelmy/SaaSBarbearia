@@ -14,7 +14,7 @@ const handleCopyToClipboard = (text: string) => {
 
 const PhoneItem = ({ phone }: PhoneItemProps) => {
   return (
-    <div key={phone} className="flex justify-between">
+    <div className="flex justify-between">
       <div className="flex items-center gap-2">
         <SmartphoneIcon />
         <p className="text-sm">{phone}</p>

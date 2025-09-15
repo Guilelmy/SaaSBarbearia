@@ -1,36 +1,220 @@
+"use client"
+
+import { Prisma } from "@prisma/client"
 import { Avatar, AvatarImage } from "./ui/avatar"
 import { Badge } from "./ui/badge"
 import { Card, CardContent } from "./ui/card"
+import { format, isFuture } from "date-fns"
+import { ptBR } from "date-fns/locale/pt-BR"
+import { Sheet, SheetClose, SheetFooter } from "./ui/sheet"
+import { SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet"
+import Image from "next/image"
+import PhoneItem from "./phone-item"
+import { Button } from "./ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger,
+  DialogTitle,
+} from "./ui/dialog"
+import { deleteBooking } from "../actions/delete-booking"
+import { toast } from "sonner"
+import { useState } from "react"
 
-const BookingItem = () => {
+interface bookingItemProps {
+  booking: Prisma.BookingGetPayload<{
+    include: { service: { include: { barbershop: true } } }
+  }>
+}
+
+const BookingItem = ({ booking }: bookingItemProps) => {
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const isConfirmed = isFuture(booking.date)
+  const handleCancelBooking = async () => {
+    try {
+      await deleteBooking(booking.id)
+      setIsSheetOpen(false)
+      toast.success("Agendamento cancelado com sucesso!")
+    } catch (error) {
+      console.log(error)
+      toast.error("Erro ao cancelar agendamento. Tente novamente.")
+    }
+  }
+
+  const handleSheetOpen = (open: boolean) => {
+    setIsSheetOpen(open)
+  }
+
   return (
-    <>
-      <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
-        Agendamentos
-      </h2>
-      <Card className="">
-        <CardContent className="flex justify-between p-0">
-          <div className="flex flex-col gap-2 py-5 pl-5">
-            <Badge className="w-fit">Confirmado</Badge>
-            <h3 className="font-semibold">Corte de cabelo</h3>
-            <div className="flex items-center gap-2">
-              <Avatar className="h-6 w-6">
+    <Sheet open={isSheetOpen} onOpenChange={handleSheetOpen}>
+      <SheetTrigger className="w-full">
+        <Card className="min-w-[90%]">
+          <CardContent className="flex justify-between p-0">
+            <div className="flex flex-col gap-2 py-5 pl-5">
+              <Badge
+                className="w-fit"
+                variant={isConfirmed ? "default" : "secondary"}
+              >
+                {isConfirmed ? "Confirmado" : "Finalizado"}
+              </Badge>
+              <h3 className="font-semibold">{booking.service.name}</h3>
+              <div className="flex items-center gap-2">
+                <Avatar className="h-6 w-6">
+                  <AvatarImage
+                    src={
+                      booking.service.barbershop.imageUrl ||
+                      "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+                    }
+                    alt="avatar"
+                  />
+                </Avatar>
+                <p className="text-sm">{booking.service.barbershop.name}</p>
+              </div>
+            </div>
+            <div className="flex flex-col items-center justify-center border-l-2 border-solid px-5">
+              <p className="text-sm capitalize">
+                {format(booking.date, "MMMM", { locale: ptBR })}
+              </p>
+              <p className="text-2xl">
+                {format(booking.date, "dd", { locale: ptBR })}
+              </p>
+              <p>{format(booking.date, "HH:mm", { locale: ptBR })}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </SheetTrigger>
+      <SheetContent className="w-[90%]">
+        <SheetHeader>
+          <SheetTitle className="text-left">
+            Informações do agendamento
+          </SheetTitle>
+        </SheetHeader>
+        <div className="relative mt-6 flex h-[180px] w-full items-end">
+          <Image
+            src="/mapa.png"
+            fill
+            className="rounded-xl object-cover"
+            alt="Barber Shop Card"
+          />
+
+          <Card className="z-50 mx-5 mb-3 w-full rounded-xl">
+            <CardContent className="flex items-center gap-3 px-5 py-3">
+              <Avatar>
                 <AvatarImage
-                  src="https://utfs.io/f/178da6b6-6f9a-424a-be9d-a2feb476eb36-16t.png"
+                  src={
+                    booking.service.barbershop.imageUrl ||
+                    "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+                  }
                   alt="avatar"
                 />
               </Avatar>
-              <p className="text-sm">Barbearia FSW</p>
-            </div>
+              <div>
+                <h3 className="font-bold">{booking.service.barbershop.name}</h3>
+                <p className="text-xs">{booking.service.barbershop.address}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="mt-6">
+          <Badge
+            className="w-fit"
+            variant={isConfirmed ? "default" : "secondary"}
+          >
+            {isConfirmed ? "Confirmado" : "Finalizado"}
+          </Badge>
+
+          <Card className="mb-6 mt-3">
+            <CardContent className="space-y-3 p-3">
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold">{booking.service.name}</h2>
+                <p className="text-sm font-bold">
+                  {Intl.NumberFormat("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  }).format(Number(booking.service.price))}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm text-gray-400">Horário</h2>
+                <p className="text-sm">
+                  {format(booking.date, "HH:mm", { locale: ptBR })}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm text-gray-400">Data</h2>
+                <p className="text-sm">
+                  {format(booking.date, "d 'de' MMMM", {
+                    locale: ptBR,
+                  })}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm text-gray-400">Barbearia</h2>
+                <p className="text-sm">{booking.service.barbershop.name}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <div className="space-y-3">
+            {booking.service.barbershop.phones.map((phone, index) => (
+              <PhoneItem key={index} phone={phone} />
+            ))}
           </div>
-          <div className="flex flex-col items-center justify-center border-l-2 border-solid px-5">
-            <p className="text-sm">Setembro</p>
-            <p className="text-2xl">04</p>
-            <p>20:00</p>
+        </div>
+        <SheetFooter className="mt-6">
+          <div className="flex items-center gap-3">
+            <SheetClose asChild>
+              <Button variant="outline" className="w-full">
+                Voltar
+              </Button>
+            </SheetClose>
+            {isConfirmed && (
+              <Dialog>
+                <DialogTrigger>
+                  <Button className="w-full" variant="destructive">
+                    Cancelar Agendamento
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="w-[90%]">
+                  <DialogHeader>
+                    <DialogTitle>
+                      Tem certeza que deseja cancelar este agendamento?
+                    </DialogTitle>
+                    <DialogDescription>
+                      Esta ação não pode ser desfeita.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter className="flex flex-row gap-3">
+                    <DialogClose asChild>
+                      <Button variant="secondary" className="w-full">
+                        Voltar
+                      </Button>
+                    </DialogClose>
+
+                    <DialogClose asChild>
+                      <Button
+                        variant="destructive"
+                        className="w-full"
+                        onClick={handleCancelBooking}
+                      >
+                        Confirmar
+                      </Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
-        </CardContent>
-      </Card>
-    </>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   )
 }
 
