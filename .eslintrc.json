@@ -2,5 +2,13 @@
   "extends": "next/core-web-vitals",
   "rules": {
     "no-unused-vars": "error"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/generated/**/*.js", "src/generated/**/*.ts"],
+      "rules": {
+        "no-unused-vars": "off"
+      }
+    }
+  ]
 }

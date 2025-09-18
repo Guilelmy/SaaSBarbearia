@@ -191,7 +191,7 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                     <SheetTitle>Fazer Reserva</SheetTitle>
                   </SheetHeader>
 
-                  <div className="border-b border-solid py-5">
+                  <div className="flex justify-center border-b border-solid py-5">
                     <Calendar
                       mode="single"
                       locale={ptBR}
@@ -287,6 +287,7 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                       type="submit"
                       onClick={handleCreateBooking}
                       disabled={!selectedDay || !selectedTime}
+                      className="mt-4 w-full"
                     >
                       Confirmar Agendamento
                     </Button>
