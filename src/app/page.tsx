@@ -95,7 +95,7 @@ const Home = async () => {
         <div className="flex gap-3 overflow-x-auto [&::-webkit-scrollbar]:hidden">
           {bookings.length > 0 ? (
             bookings.map((booking) => (
-              <div key={booking.id} className="min-w-[200px] flex-shrink-0">
+              <div key={booking.id} className="min-w-[300px] flex-shrink-0">
                 <BookingItem booking={booking} />
               </div>
             ))
